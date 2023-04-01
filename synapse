@@ -27,48 +27,147 @@ local window = lib:MakeWindow({Name = "LMan's Hoopz UI"})
 local main = window:MakeTab({Name = "Main"})
 local s = window:MakeTab({Name = "Silent"})
 local g = window:MakeTab({Name = "Settings"})
---local uiss = window:MakeTab({Name = "Other GUIs"})
+local c = window:MakeTab({Name = "Config"})
 
-main:AddToggle({Name = "Aimbot", Default = false, Callback = function(v)
-    _G.Aimbot = v
-end})
-main:AddToggle({Name = "Reach", Default = false, Callback = function(v)
-    _G.Reach = v
-end})
+_G.configTable = {
+    Reach = false;
+    Aimbot = false;
+    Autogaurd = false;
+    WS = false;
+    R = false;
+    HH = false;
+    Silent = false;
+    AutoPower = false;
+    AutoSave = false;
+    AutoLoad = false;
+}
 
-main:AddToggle({Name = "AutoGaurd/Defend", default = false, Callback = function(v)
+print("---DEFAULT SETTINGS--")
+for i,v in pairs(_G.configTable) do
+    print(i,v)
+end
+print("-------")
+
+local filename = "LMan_Hoopz_UI_Config.json";
+
+_G.fir1st = false
+
+function loadSettings()
+    print('loading config')
+    local HttpService = game:GetService("HttpService");
+    if (readfile and isfile and isfile(filename)) then
+        if _G.fir1st == false then
+            local temp = HttpService:JSONDecode(readfile(filename));
+            if temp.AutoLoad == true then
+                _G.configTable = HttpService:JSONDecode(readfile(filename));
+            end
+        else
+            _G.configTable = HttpService:JSONDecode(readfile(filename));
+        end
+        loadfromtable()
+        print('loaded config')
+    else
+        print("--- SORRY CAN'T LOAD DUE TO EXECUTOR NOT HAVING A LOAD FUNCTION ---")
+    end
+end
+
+function saveFunction()
+    print('saving config')
+    _G.fir1st = true
+    local json;
+    local HttpService = game:GetService("HttpService");
+    if (writefile) then
+        json = HttpService:JSONEncode(_G.configTable);
+        writefile(filename, json)
+        print('config saved')
+    else
+        print("--- SORRY CAN'T SAVE DUE TO EXECUTOR NOT HAVING A SAVE FUNCTION ---")
+    end
+end
+
+local a = main:AddToggle({Name = "Aimbot", Default = false, Callback = function(v)
+    _G.configTable.Aimbot = v
+    if _G.configTable.AutoSave == true then
+        saveFunction()
+    end
+end})
+local r = main:AddToggle({Name = "Reach", Default = false, Callback = function(v)
+    _G.configTable.Reach = v
+    if _G.configTable.AutoSave == true then
+        saveFunction()
+    end
+end})
+local ag = main:AddToggle({Name = "AutoGaurd/Defend", default = false, Callback = function(v)
     if v then
         game.StarterGui:SetCore("SendNotification", {Title = "AutoGaurd/Defend", Text = "Press X to go to the nearest ball", Duration = 5, Button1 = "Okay"})
     end
-    _G.Autogaurd = v
-end})
-main:AddToggle({Name = "Infinite Jump", Default = false, Callback = function(v)
-    _G.infinjump = v
+    _G.configTable.Autogaurd = v
+    if _G.configTable.AutoSave == true then
+        saveFunction()
+    end
 end})
 local rrr = g:AddSlider({Name = "Reach Length", Min = 0, Max = 25, Default = 0, Color = Color3.fromRGB(80, 80, 255), Increment = 1, Callback = function(v)
-    _G.R = v
+    _G.configTable.R = v
+    if _G.configTable.AutoSave == true then
+        saveFunction()
+    end
 end})
-g:AddSlider({Name = "WalkSpeed", Min = 16, Max = 19, Default = 16, Color = Color3.fromRGB(80, 80, 255), Increment = 0.1, Callback = function(v)
-    _G.WS = v
+local wss = g:AddSlider({Name = "WalkSpeed", Min = 16, Max = 19, Default = 16, Color = Color3.fromRGB(80, 80, 255), Increment = 0.1, Callback = function(v)
+    _G.configTable.WS = v
+    if _G.configTable.AutoSave == true then
+        saveFunction()
+    end
 end})
-g:AddSlider({Name = "HipHeight", Min = 0, Max = 9, Default = 0, Color = Color3.fromRGB(80, 80, 255), Increment = 0.1, Callback = function(v)
-    _G.HH = v
+local hhs = g:AddSlider({Name = "HipHeight", Min = 0, Max = 9, Default = 0, Color = Color3.fromRGB(80, 80, 255), Increment = 0.1, Callback = function(v)
+    _G.configTable.HH = v
+    if _G.configTable.AutoSave == true then
+        saveFunction()
+    end
 end})
-s:AddToggle({Name = "Silent Mode", Default = false, Callback = function(v)
-    _G.Silent = v
+local ss = s:AddToggle({Name = "Silent Mode", Default = false, Callback = function(v)
+    _G.configTable.Silent = v
+    if _G.configTable.AutoSave == true then
+        saveFunction()
+    end
 end})
-s:AddToggle({Name = "Auto Power", Default = false, Callback = function(v)
-    _G.AutoPower = v
+local ap = s:AddToggle({Name = "Auto Power", Default = false, Callback = function(v)
+    _G.configTable.AutoPower = v
+    if _G.configTable.AutoSave == true then
+        saveFunction()
+    end
 end})
---[[uiss:AddButton({Name = "Hoopz GUI", default = false, Callback = function()
-	loadstring(game:HttpGet("https://paste.ee/r/GWYx2", true))()
+c:AddButton({Name = "Save Config", Callback = function()
+    saveFunction()
 end})
-uiss:AddButton({Name = "Discord Library", default = false, Callback = function()
-	loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/LOLking123456/grrfdgreg/main/h%20mo%20pppz"))()
+c:AddButton({Name = "Load Config", Callback = function()
+    loadSettings()
 end})
-uiss:AddButton({Name = "Infinite Yield FE", default = false, Callback = function()
-	loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
-end})]]
+local asc = c:AddToggle({Name = "Auto Save Config", Default = false, Callback = function(v)
+    _G.configTable.AutoSave = v
+    if _G.fir1st == false then
+    else
+        saveFunction()
+    end
+end})
+local alc = c:AddToggle({Name = "Auto Load Config", Default = false, Callback = function(v)
+    _G.configTable.AutoLoad = v
+    if _G.configTable.AutoSave == true then
+        saveFunction()
+    end
+end})
+
+function loadfromtable()
+    a:Set(_G.configTable.Aimbot)
+    r:Set(_G.configTable.Reach)
+    ag:Set(_G.configTable.Autogaurd)
+    rrr:Set(_G.configTable.R)
+    wss:Set(_G.configTable.WS)
+    hhs:Set(_G.configTable.HH)
+    ss:Set(_G.configTable.Silent)
+    ap:Set(_G.configTable.AutoPower)
+    asc:Set(_G.configTable.AutoSave)
+    alc:Set(_G.configTable.AutoLoad)
+end
 
 local shootingEvent = game:GetService("ReplicatedStorage").shootingEvent
 
@@ -76,18 +175,17 @@ if workspace:FindFirstChild("PracticeArea") then
     workspace.PracticeArea.Parent = workspace.Courts
 end
 
-local jumping = false
+loadSettings()
 
-uis.InputBegan:connect(function(k)
-    if _G.infinjump then
-        if k.KeyCode == Enum.KeyCode.Space then
-            Humanoid = game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-            Humanoid:ChangeState("Jumping")
-            wait(0.1)
-            Humanoid:ChangeState("Seated")
-        end
-    end
-end)
+print("---UPDATED SETTINGS--")
+for i,v in pairs(_G.configTable) do
+    print(i,v)
+end
+print("-------")
+
+_G.fir1st = true
+
+local jumping = false
 
 for i,v in pairs(getconnections(game:GetService("UserInputService").TouchTapInWorld)) do
     for z,x in pairs(getupvalues(v.Function)) do
@@ -305,7 +403,7 @@ function getNearestPart(torso)
 end
 
 function stepped() pcall(function()
-    if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and _G.Aimbot then
+    if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and _G.configTable.Aimbot then
         local pwr = power()
         local dist, goal = setup()
         local root = plr.Character.HumanoidRootPart
@@ -359,14 +457,14 @@ function stepped() pcall(function()
             else
                 root.Transparency = 1
             end
-        elseif root and not hasBall and _G.Aimbot then
+        elseif root and not hasBall and _G.configTable.Aimbot then
             root.Transparency = 1
-        elseif root and not _G.Aimbot then
+        elseif root and not _G.configTable.Aimbot then
             root.Transparency = 1
         end
     end
 
-    if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and _G.AutoPower then
+    if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and _G.configTable.AutoPower then
         local pwr = power()
         local dist, goal = setup()
         local root = plr.Character.HumanoidRootPart
@@ -375,7 +473,7 @@ function stepped() pcall(function()
 
         if root and hasBall then
             root.Size = Vector3.new(2.1, 2.1, 1.1)
-            if _G.Aimbot == false then
+            if _G.configTable.Aimbot == false then
                 root.BrickColor = BrickColor.new("Deep blue")
             end
             root.Material = Enum.Material.Neon
@@ -422,9 +520,9 @@ function stepped() pcall(function()
             else
                 root.Transparency = 1
             end
-        elseif root and not hasBall and _G.AutoPower then
+        elseif root and not hasBall and _G.configTable.AutoPower then
             root.Transparency = 1
-        elseif root and not _G.AutoPower then
+        elseif root and not _G.configTable.AutoPower then
             root.Transparency = 1
         end
     end
@@ -432,14 +530,14 @@ function stepped() pcall(function()
     updateNearestPlayerWithBall()
    
     if _G.WS ~= 16 and plr.Character:WaitForChild("Humanoid").WalkSpeed ~= 0 then
-        plr.Character:WaitForChild("Humanoid").WalkSpeed = _G.WS
+        plr.Character:WaitForChild("Humanoid").WalkSpeed = _G.configTable.WS
     end
     
-    if _G.HH ~= 0 and plr.Character:WaitForChild("Humanoid").HipHeight then
-        plr.Character:WaitForChild("Humanoid").HipHeight = _G.HH
+    if _G.configTable.HH ~= 0 and plr.Character:WaitForChild("Humanoid").HipHeight then
+        plr.Character:WaitForChild("Humanoid").HipHeight = _G.configTable.HH
     end
 
-    if _G.Autogaurd and tracking and player and plr.Character and plr.Character:FindFirstChild("Humanoid") and not plr.Character:FindFirstChild("Basketball") and player.Character and player.Character:FindFirstChild("Basketball") then
+    if _G.configTable.Autogaurd and tracking and player and plr.Character and plr.Character:FindFirstChild("Humanoid") and not plr.Character:FindFirstChild("Basketball") and player.Character and player.Character:FindFirstChild("Basketball") then
         plr.Character.Humanoid:MoveTo(player.Character.Basketball:FindFirstChildOfClass("Part").Position + player.Character.Torso.CFrame.LookVector + ((player.Character.Humanoid.MoveDirection * 2) + (plr.Character.Torso.Velocity.Unit * 3)))
        
         if (player.Character.Torso.Position.Y - ground.Position.Y) > 2.5 then
@@ -450,18 +548,18 @@ function stepped() pcall(function()
         return
     end
 
-    if _G.Silent == true then
-        if _G.R > 3 then
+    if _G.configTable.Silent == true then
+        if _G.configTable.R > 3 then
             rrr:Set(3)
-            _G.R = 3
+            _G.configTable.R = 3
         end
     end
    
     for i,v in pairs(game.Players:GetPlayers()) do
-        if (v.Name ~= plr.Name and v.Character and plr.Character) and _G.Reach then
+        if (v.Name ~= plr.Name and v.Character and plr.Character) and _G.configTable.Reach then
             local nearestPart = getNearestPart(v.Character.Torso)
             for z,x in pairs(v.Character:GetChildren()) do
-                if ((nearestPart.Position - v.Character.Torso.Position).Magnitude < _G.R) then
+                if ((nearestPart.Position - v.Character.Torso.Position).Magnitude < _G.configTable.R) then
                     if (x:IsA("Tool") or x:IsA("Folder")) then
                         firetouchinterest(nearestPart, x:FindFirstChildOfClass("Part"), 0)
                         task.wait()
@@ -501,9 +599,9 @@ function shoot()
    
     if arc ~= nil and plr.Character and plr.Character:FindFirstChild("Humanoid") then
         local args = nil
-        if _G.Silent == true then
+        if _G.configTable.Silent == true then
             args = table(plr.Character.Torso.Position, (goal.Position + Vector3.new(math.random(-0.9,0.9), arc + math.random(-0.9,0.9), math.random(-0.9,0.9)) - plr.Character.HumanoidRootPart.Position + plr.Character.Humanoid.MoveDirection).Unit)
-        elseif _G.Silent == false then
+        elseif _G.configTable.Silent == false then
             args = table(plr.Character.Torso.Position, (goal.Position + Vector3.new(0, arc, 0) - plr.Character.HumanoidRootPart.Position + plr.Character.Humanoid.MoveDirection).Unit)
         end
    
@@ -517,7 +615,7 @@ function shoot()
 end
 
 function jumped()
-    if _G.Aimbot and plr.Character and hasBall and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Character.HumanoidRootPart.Transparency == 0 then
+    if _G.configTable.Aimbot and plr.Character and hasBall and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Character.HumanoidRootPart.Transparency == 0 then
         jumping = true
         task.wait(0.325)
         shoot()
@@ -540,7 +638,7 @@ function removed(v)
 end
 
 function began(key, gpe)
-    if not gpe and key.KeyCode == Enum.KeyCode.X and _G.Autogaurd then
+    if not gpe and key.KeyCode == Enum.KeyCode.X and configTable.Autogaurd then
         updateNearestPlayerWithBall()
         if not tracking then
             tracking = true
