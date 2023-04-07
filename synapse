@@ -111,12 +111,18 @@ local rrr = g:AddSlider({Name = "Reach Length", Min = 0, Max = 25, Default = 0, 
 end})
 local wss = g:AddSlider({Name = "WalkSpeed", Min = 16, Max = 19, Default = 16, Color = Color3.fromRGB(80, 80, 255), Increment = 0.1, Callback = function(v)
     _G.configTable.WS = v
+    if v == 16 and plr.Character:WaitForChild("Humanoid").WalkSpeed ~= 0 then
+        plr.Character:WaitForChild("Humanoid").WalkSpeed = v
+    end
     if _G.configTable.AutoSave == true then
         saveFunction()
     end
 end})
 local hhs = g:AddSlider({Name = "HipHeight", Min = 0, Max = 9, Default = 0, Color = Color3.fromRGB(80, 80, 255), Increment = 0.1, Callback = function(v)
     _G.configTable.HH = v
+    if v == 0 and plr.Character:WaitForChild("Humanoid").HipHeight then
+        plr.Character:WaitForChild("Humanoid").HipHeight = v
+    end
     if _G.configTable.AutoSave == true then
         saveFunction()
     end
@@ -549,7 +555,7 @@ function stepped() pcall(function()
    
     updateNearestPlayerWithBall()
    
-    if _G.WS ~= 16 and plr.Character:WaitForChild("Humanoid").WalkSpeed ~= 0 then
+    if _G.configTable.WS ~= 16 and plr.Character:WaitForChild("Humanoid").WalkSpeed ~= 0 then
         plr.Character:WaitForChild("Humanoid").WalkSpeed = _G.configTable.WS
     end
     
