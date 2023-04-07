@@ -171,7 +171,7 @@ function panic()
     wss:Set(16)
     hhs:Set(0)
     ss:Set(false)
-    ap:Set(0)
+    ap:Set(false)
 end
 
 function loadfromtable()
