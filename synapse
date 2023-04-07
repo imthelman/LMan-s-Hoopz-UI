@@ -98,9 +98,6 @@ local r = main:AddToggle({Name = "Reach", Default = false, Callback = function(v
     end
 end})
 local ag = main:AddToggle({Name = "AutoGaurd/Defend", default = false, Callback = function(v)
-    if v then
-        game.StarterGui:SetCore("SendNotification", {Title = "AutoGaurd/Defend", Text = "Press X to go to the nearest ball", Duration = 5, Button1 = "Okay"})
-    end
     _G.configTable.Autogaurd = v
     if _G.configTable.AutoSave == true then
         saveFunction()
@@ -136,6 +133,13 @@ local ap = s:AddToggle({Name = "Auto Power", Default = false, Callback = functio
         saveFunction()
     end
 end})
+main:AddButton({Name = "Panic", Callback = function()
+    panic()
+end})
+main:AddButton({Name = "Un-Inject", Callback = function()
+    panic()
+    lib:Destroy()
+end})
 c:AddButton({Name = "Save Config", Callback = function()
     saveFunction()
 end})
@@ -155,6 +159,20 @@ local alc = c:AddToggle({Name = "Auto Load Config", Default = false, Callback = 
         saveFunction()
     end
 end})
+c:AddButton({Name = "Delete Config", Default = false, Callback = function()
+    delfile(filename)
+end})
+
+function panic()
+    ag:Set(false)
+    r:Set(false)
+    a:Set(false)
+    rrr:Set(0)
+    wss:Set(16)
+    hhs:Set(0)
+    ss:Set(false)
+    ap:Set(0)
+end
 
 function loadfromtable()
     a:Set(_G.configTable.Aimbot)
@@ -600,7 +618,12 @@ function shoot()
     if arc ~= nil and plr.Character and plr.Character:FindFirstChild("Humanoid") then
         local args = nil
         if _G.configTable.Silent == true then
-            args = table(plr.Character.Torso.Position, (goal.Position + Vector3.new(math.random(-0.9,0.9), arc + math.random(-0.9,0.9), math.random(-0.9,0.9)) - plr.Character.HumanoidRootPart.Position + plr.Character.Humanoid.MoveDirection).Unit)
+            local rng = math.random(1,2)
+            if rng == 1 then
+                args = table(plr.Character.Torso.Position, (goal.Position + Vector3.new(math.random(-0.95,0.-55), arc + math.random(-0.95,0.-55), math.random(-0.95,0.-55)) - plr.Character.HumanoidRootPart.Position + plr.Character.Humanoid.MoveDirection).Unit)
+            elseif rng == 2 then
+                args = table(plr.Character.Torso.Position, (goal.Position + Vector3.new(math.random(0.55,0.95), arc + math.random(0.55,0.95), math.random(0.55,0.95)) - plr.Character.HumanoidRootPart.Position + plr.Character.Humanoid.MoveDirection).Unit)
+            end
         elseif _G.configTable.Silent == false then
             args = table(plr.Character.Torso.Position, (goal.Position + Vector3.new(0, arc, 0) - plr.Character.HumanoidRootPart.Position + plr.Character.Humanoid.MoveDirection).Unit)
         end
@@ -638,7 +661,7 @@ function removed(v)
 end
 
 function began(key, gpe)
-    if not gpe and key.KeyCode == Enum.KeyCode.X and configTable.Autogaurd then
+    if not gpe and key.KeyCode == Enum.KeyCode.X and _G.configTable.Autogaurd then
         updateNearestPlayerWithBall()
         if not tracking then
             tracking = true
